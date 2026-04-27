@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decision Intelligence Maturity Index (DIMI)</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --cobalt: #002b5c; 
+            --gold: #d4a756;
+            --slate: #f4f7f9;
+            --text-main: #1a1a1a;
+            --text-muted: #546b82;
+            --border: #e1e8ed;
+        }
+
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            background-color: var(--slate);
+            color: var(--text-main);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: -1px;
+            color: var(--cobalt);
+        }
+
+        header p {
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 10px auto;
+            font-size: 1.1rem;
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+        }
+
+        .assessment-card, .results-card {
+            background: #fff;
+            border-radius: 4px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            border-top: 4px solid var(--cobalt);
+        }
+
+        .dimension-group {
+            margin-bottom: 40px;
+        }
+
+        .dimension-header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .dimension-header h2 {
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 0;
+            color: var(--cobalt);
+        }
+
+        .question {
+            margin-bottom: 30px;
+        }
+
+        .question label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .stage-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: var(--gold);
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .option {
+            border: 1px solid var(--border);
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            background: #fafbfc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 50px;
+        }
+
+        .option:hover {
+            border-color: var(--cobalt);
+            background: #fff;
+        }
+
+        .option.active {
+            background: var(--cobalt);
+            color: #fff;
+            border-color: var(--cobalt);
+        }
+
+        .results-card {
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+        }
+
+        .score-circle {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .score-num {
+            font-size: 3rem;
+            font-weight: 200;
+            color: var(--cobalt);
+        }
+
+        .maturity-tag {
+            display: inline-block;
+            background: var(--gold);
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .insight-box {
+            background: var(--slate);
+            padding: 24px;
+            border-radius: 4px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            border: 1px solid var(--border);
+        }
+
+        .insight-box h4 {
+            margin: 0 0 14px 0;
+            color: var(--cobalt);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+        }
+
+        .insight-section {
+            margin-bottom: 16px;
+        }
+
+        .insight-label {
+            font-weight: 700;
+            color: var(--cobalt);
+            display: block;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 0.5px;
+        }
+
+        .consultant-glossary {
+            margin-top: 80px;
+            padding: 60px 40px;
+            background-color: #fff;
+            border: 1px solid var(--border);
+            border-top: 6px solid var(--cobalt);
+            border-radius: 4px;
+        }
+
+        .glossary-header {
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--cobalt);
+            padding-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .glossary-header h3 {
+            font-size: 1.8rem;
+            font-family: "Georgia", serif;
+            font-weight: 300;
+            margin: 0;
+            color: var(--cobalt);
+        }
+
+        .glossary-category {
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            gap: 40px;
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .category-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            font-weight: 800;
+            line-height: 1.4;
+        }
+
+        .terms-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px 60px;
+        }
+
+        .term-group dt {
+            font-family: "Georgia", serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--cobalt);
+            margin-bottom: 12px;
+        }
+
+        .evolution-path {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .evolution-path li {
+            font-size: 0.85rem;
+            margin-bottom: 12px;
+            padding-left: 20px;
+            position: relative;
+            color: var(--text-muted);
+        }
+
+        .evolution-path li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--gold);
+            font-weight: bold;
+        }
+
+        .evolution-path li strong {
+            color: var(--cobalt);
+            display: block;
+            font-size: 0.9rem;
+            margin-bottom: 2px;
+        }
+
+        .strategic-note {
+            margin-bottom: 50px;
+            padding: 24px;
+            background: #f8f9fa;
+            border-left: 4px solid var(--gold);
+            font-size: 1rem;
+            color: var(--cobalt);
+            line-height: 1.6;
+        }
+
+        @media (max-width: 900px) {
+            .main-layout { grid-template-columns: 1fr; }
+            .glossary-category { grid-template-columns: 1fr; }
+            .terms-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="maturity-tag">Executive Diagnostic</div>
+        <h1>Decision Intelligence Maturity Index (DIMI)</h1>
+        <p>Strategic benchmarking across the four stages of enterprise intelligence evolution.</p>
+    </header>
+
+    <div class="main-layout">
+        <div class="assessment-card">
+            <div id="survey-container"></div>
+        </div>
+
+        <div class="results-card">
+            <div class="score-circle">
+                <div class="score-num" id="total-score">0</div>
+                <div style="color: var(--text-muted); font-size: 0.9rem; margin-top: -10px;">Operational Posture (%)</div>
+            </div>
+            
+            <canvas id="radarChart"></canvas>
+
+            <div class="insight-box" id="insight-container">
+                <h4>Strategic Gap Analysis</h4>
+                <div id="dynamic-insight">Initialize diagnostic to view executive advisory.</div>
+            </div>
+            
+            <button onclick="window.print()" style="width:100%; margin-top:20px; padding:15px; background:var(--cobalt); color:white; border:none; border-radius:4px; cursor:pointer; font-weight:600; text-transform:uppercase; letter-spacing:1px;">Export Executive Summary</button>
+        </div>
+    </div>
+
+    <div class="consultant-glossary">
+        <div class="glossary-header">
+            <h3>Strategic Reference Manual</h3>
+            <span style="color: var(--gold); font-weight: 700; font-size: 0.7rem; letter-spacing: 1px;">MATURITY FRAMEWORK</span>
+        </div>
+
+        <div class="strategic-note">
+            <strong>Strategic Benchmarking:</strong> Organizations reaching <strong>Stage 4</strong> typically experience a <strong>20-30% increase in EBITDA</strong> through optimized decision velocity and the elimination of structural decision waste.
+        </div>
+
+        <div class="glossary-category">
+            <div class="category-label">Strategy & Alignment</div>
+            <div class="terms-grid">
+                <div class="term-group">
+                    <dt>Decision Taxonomy</dt>
+                    <ul class="evolution-path">
+                        <li><strong>Stage 1 - Ad-hoc:</strong> Reactive decisions driven by unmapped intuition.</li>
+                        <li><strong>Stage 2 - Functional Silos:</strong> Departmental optimization without enterprise coordination.</li>
+                        <li><strong>Stage 3 - Standardized:</strong> Repeatable, data-backed rubrics for capital allocation.</li>
+                        <li><strong>Stage 4 - AI-Augmented:</strong> Human-machine simulation of strategic outcomes.</li>
+                    </ul>
+                </div>
+                <div class="term-group">
+                    <dt>Value Realization</dt>
+                    <ul class="evolution-path">
+                        <li><strong>Stage 1 - Cost-center:</strong> Data treated as an IT expense to be minimized.</li>
+                        <li><strong>Stage 2 - ROI Tracked:</strong> Project gains measured but isolated.</li>
+                        <li><strong>Stage 3 - Value-stream:</strong> Data flows mapped directly to profit/loss generation.</li>
+                        <li><strong>Stage 4 - Asset Class:</strong> Data is a primary driver of enterprise value.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="glossary-category">
+            <div class="category-label">Data Architecture</div>
+            <div class="terms-grid">
+                <div class="term-group">
+                    <dt>Data Trust (MDM)</dt>
+                    <ul class="evolution-path">
+                        <li><strong>Stage 1 - Manual:</strong> High human effort (Excel/Emails) required to clean data.</li>
+                        <li><strong>Stage 2 - Basic MDM:</strong> Established "Golden Records" for customers/products.</li>
+                        <li><strong>Stage 3 - Automated:</strong> Managed pipelines that move data without human intervention.</li>
+                        <li><strong>Stage 4 - Self-healing:</strong> AI automatically remediates quality errors.</li>
+                    </ul>
+                </div>
+                <div class="term-group">
+                    <dt>Accessibility Tiers</dt>
+                    <ul class="evolution-path">
+                        <li><strong>Stage 1 - Ticket-based:</strong> Business users wait for manual data fulfillment.</li>
+                        <li><strong>Stage 2 - Power User:</strong> Limited experts provide curated data access.</li>
+                        <li><strong>Stage 3 - Self-service:</strong> Broad BI tool access (Tableau/PowerBI) allows exploration.</li>
+                        <li><strong>Stage 4 - Embedded:</strong> Contextual insights delivered within native workflows (CRM/ERP).</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="glossary-category">
+            <div class="category-label">Modeling & AI</div>
+            <div class="terms-grid">
+                <div class="term-group">
+                    <dt>Analytical Depth</dt>
+                    <ul class="evolution-path">
+                        <li><strong>Stage 1 - Descriptive:</strong> Reporting on "What happened?" (Hindsight).</li>
+                        <li><strong>Stage 2 - Diagnostic:</strong> Investigating variance to see "Why?" (Insight).</li>
+                        <li><strong>Stage 3 - Predictive:</strong> Statistical modeling to forecast "What next?" (Foresight).</li>
+                        <li><strong>Stage 4 - Prescriptive:</strong> Algorithmic guidance on "What to do?" (Optimization).</li>
+                    </ul>
+                </div>
+                <div class="term-group">
+                    <dt>Model Governance</dt>
+                    <ul class="evolution-path">
+                        <li><strong>Stage 1 - No Oversight:</strong> Models live on local laptops without audit trails.</li>
+                        <li><strong>Stage 2 - Documentation:</strong> Models logged, but performance tracking is manual.</li>
+                        <li><strong>Stage 3 - MLOps:</strong> Professional deployment with tracking for "drift."</li>
+                        <li><strong>Stage 4 - Responsible AI:</strong> Formal frameworks for ethics and compliance.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const surveyData = [
+        {
+            dimension: "Strategy & Alignment",
+            questions: [
+                { id: "s1", label: "Decision Taxonomy", options: ["Ad-hoc decisions", "Functional silos", "Standardized process", "AI-augmented workflows"] },
+                { id: "s2", label: "Value Realization", options: ["Cost-center view", "Project ROI tracked", "Value-stream mapping", "Data as an Asset"] }
+            ]
+        },
+        {
+            dimension: "Data & Architecture",
+            questions: [
+                { id: "d1", label: "Data Quality & Trust", options: ["Manual cleaning", "Basic MDM", "Automated pipelines", "Self-healing data"] },
+                { id: "d2", label: "Accessibility", options: ["Ticket-based", "Power user access", "Self-service BI", "Embedded insights"] }
+            ]
+        },
+        {
+            dimension: "Modeling & AI",
+            questions: [
+                { id: "m1", label: "Analytical Depth", options: ["Descriptive only", "Diagnostic (Why)", "Predictive (What)", "Prescriptive (How)"] },
+                { id: "m2", label: "Model Governance", options: ["No oversight", "Basic documentation", "MLOps enabled", "Responsible AI Framework"] }
+            ]
+        },
+        {
+            dimension: "Culture & Talent",
+            questions: [
+                { id: "t1", label: "Data Literacy", options: ["Low / Specialized", "Awareness programs", "Data-driven culture", "Data-native workforce"] },
+                { id: "t2", label: "Agility", options: ["Waterfall delivery", "Agile pilots", "Scaled Agile", "Continuous Innovation"] }
+            ]
+        }
+    ];
+
+    let scores = { "Strategy & Alignment": 0, "Data & Architecture": 0, "Modeling & AI": 0, "Culture & Talent": 0 };
+    let rawAnswers = {};
+    let chart;
+
+    function initSurvey() {
+        const container = document.getElementById('survey-container');
+        surveyData.forEach(group => {
+            let html = `<div class="dimension-group">
+                <div class="dimension-header"><h2>${group.dimension}</h2></div>`;
+            
+            group.questions.forEach(q => {
+                html += `
+                    <div class="question">
+                        <label>${q.label}</label>
+                        <div class="stage-labels">
+                            <span>Stage 1</span>
+                            <span>Stage 2</span>
+                            <span>Stage 3</span>
+                            <span>Stage 4</span>
+                        </div>
+                        <div class="options-grid">
+                            ${q.options.map((opt, i) => `<div class="option" onclick="setScore('${group.dimension}', '${q.id}', ${i+1}, this)">${opt}</div>`).join('')}
+                        </div>
+                    </div>`;
+            });
+            html += `</div>`;
+            container.innerHTML += html;
+        });
+        initChart();
+    }
+
+    function setScore(dim, qId, val, el) {
+        const parent = el.parentElement;
+        parent.querySelectorAll('.option').forEach(o => o.classList.remove('active'));
+        el.classList.add('active');
+        rawAnswers[qId] = val;
+        
+        const dimData = surveyData.find(d => d.dimension === dim);
+        const qIds = dimData.questions.map(q => q.id);
+        let sum = 0, count = 0;
+        qIds.forEach(id => { if(rawAnswers[id]) { sum += rawAnswers[id]; count++; } });
+        
+        scores[dim] = (sum / count) * 25; 
+        updateDisplay();
+    }
+
+    function updateDisplay() {
+        const total = Object.values(scores).reduce((a, b) => a + b, 0) / 4;
+        document.getElementById('total-score').innerText = Math.round(total);
+        
+        // Find the "Critical Friction Point" (lowest score)
+        const sortedDimensions = Object.entries(scores).sort((a, b) => a[1] - b[1]);
+        const primaryGap = sortedDimensions[0][0];
+        const secondaryGap = sortedDimensions[1][0];
+
+        let advisory = "";
+        
+        // Logical Scenarios based on consultant-grade heuristics
+        if (scores["Strategy & Alignment"] < 50 && scores["Modeling & AI"] > 70) {
+            advisory = `
+                <div class="insight-section">
+                    <span class="insight-label">Primary Structural Gap</span>
+                    <strong>Sophistication Paradox:</strong> Technical depth exceeds strategic alignment. The organization is at risk of "ghost projects" that offer high precision but low business utility.
+                </div>
+                <div class="insight-section">
+                    <span class="insight-label">Strategic Directive</span>
+                    Reallocate analytical focus from model refinement to decision-taxonomy mapping. Anchor all AI spend to specific capital-allocation outcomes.
+                </div>`;
+        } else if (total < 40) {
+            advisory = `
+                <div class="insight-section">
+                    <span class="insight-label">Primary Structural Gap</span>
+                    <strong>Foundational Deficit:</strong> Structural integrity in the data foundation is currently the bottleneck. Decisions are reactive rather than predictive.
+                </div>
+                <div class="insight-section">
+                    <span class="insight-label">Strategic Directive</span>
+                    Halt advanced pilots. Focus 100% of the next 120 days on Master Data Management (MDM) and metric standardization to build institutional trust.
+                </div>`;
+        } else if (total > 85) {
+            advisory = `
+                <div class="insight-section">
+                    <span class="insight-label">Market Posture</span>
+                    <strong>Industry Leading:</strong> Operating at "Strategic Alpha." Intelligence is currently a competitive moat.
+                </div>
+                <div class="insight-section">
+                    <span class="insight-label">Strategic Directive</span>
+                    Scale autonomous intelligence loops and self-healing pipelines. Focus on predictive risk management to preserve market gains.
+                </div>`;
+        } else {
+            advisory = `
+                <div class="insight-section">
+                    <span class="insight-label">Structural Gap: ${primaryGap}</span>
+                    <strong>Scaling Friction:</strong> The deficit in ${primaryGap} is preventing the enterprise from moving to Stage 4 maturity.
+                </div>
+                <div class="insight-section">
+                    <span class="insight-label">Strategic Directive</span>
+                    Execute a targeted modernization of ${primaryGap} protocols. Shift from siloed functional pilots to cross-enterprise capability scaling.
+                </div>`;
+        }
+
+        document.getElementById('dynamic-insight').innerHTML = advisory;
+        chart.data.datasets[0].data = Object.values(scores);
+        chart.update();
+    }
+
+    function initChart() {
+        const ctx = document.getElementById('radarChart').getContext('2d');
+        chart = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: Object.keys(scores),
+                datasets: [{
+                    label: 'Postural Readiness %',
+                    data: [0, 0, 0, 0],
+                    backgroundColor: 'rgba(0, 43, 92, 0.1)',
+                    borderColor: '#002b5c',
+                    pointBackgroundColor: '#d4a756',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                scales: { r: { min: 0, max: 100, ticks: { display: false }, grid: { color: '#e1e8ed' } } },
+                plugins: { legend: { display: false } }
+            }
+        });
+    }
+
+    initSurvey();
+</script>
+
+</body>
+</html>
